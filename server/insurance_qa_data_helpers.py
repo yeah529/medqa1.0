@@ -62,7 +62,7 @@ def build_vocab():
     #            vocab[word] =code
     #            code += 1
     #openedFile.close()
-    print(code)
+    print("总字数: ",code)
     return vocab
 
 def rand_qa(qalist):
