@@ -62,6 +62,7 @@ def build_vocab():
     #            vocab[word] =code
     #            code += 1
     #openedFile.close()
+    print(vocab.keys()[:-10])
     print(code)
     return vocab
 
