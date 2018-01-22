@@ -40,7 +40,7 @@ Page({
       fail: function (res) {
         that.setData({
           nickName: '尊敬的用户',
-          avatarUrl: '/images/头像.png',
+          avatarUrl: '../../images/头像.png',
         })
       },
       complete: function(res){
@@ -182,7 +182,7 @@ Page({
       },
     })   
     wx.request({
-      url: 'http://0.0.0.0:5000/type',
+      url: 'http://127.0.0.1:5000/type',
       header: {
         'content-type': 'application/x-www-form-urlencoded'
       },

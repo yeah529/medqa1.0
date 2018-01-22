@@ -89,11 +89,11 @@ class QA_MED(object):
      
     def welcome_msg(self,user_name):
         #第一条打招呼信息
-        return '您好，'+str(user_name.encode('utf8'))+'。\n欢迎使用健康小医生，\n任何健康问题都能问我哦！\n我们提供下列科室:'
+        return '您好，'+str(user_name.encode('utf8'))+'。\n欢迎使用问诊小医生，\n任何健康问题都能问我哦！'
             
     def get_department(self):
         #获取不同科目
-        reply_text = ''
+        reply_text = '我们提供下列科室:\n'
         for ix,txt in enumerate(self.q_key):
             reply_text += str(ix+1) + ': ' + str(txt.encode('utf8')) + '\n'
             #if (ix+1) % 2 == 0:

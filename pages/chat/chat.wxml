@@ -1,11 +1,11 @@
 <!--pages/chat/chat.wxml-->
-<scroll-view scroll-y style="height: 550px;" scroll-top="{{scrollTop}}">
+<scroll-view scroll-y style="height: 1000rpx;" scroll-top="{{scrollTop}}">
 <loading hidden="{{hidden}}">
-  小助手在翻书...
+  小医生在诊断...
  </loading>
 <block wx:for="{{msglist}}">
     <view class='reply' wx:if="{{item.type==1}}">
-        <image class='rob_photo' src='/images/女医生.png'></image>
+        <image class='rob_photo' src='../../images/女医生.png'></image>
         <text class='reply_text' >{{item.msg}}</text>
     </view>
 
@@ -16,8 +16,6 @@
     </view>
 </block>
 </scroll-view>
-
-
 
 
 <form bindsubmit='send'>
