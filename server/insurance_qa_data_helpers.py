@@ -45,7 +45,7 @@ def build_vocab():
             if word not in vocab:
                 vocab[word] =code
                 code += 1
-                
+    vocab[u'FUCK'] = code+1                
     openedFile.close()
     #openedFile = open('data/test.txt', 'r')
     #allLines = openedFile.readlines()
@@ -133,12 +133,16 @@ def load_train_and_vectors():
     openedFile = open('data/train.txt', 'r')
     allLines = openedFile.readlines()
     for line in allLines:
+        #print(line)
         comms = line.decode('utf8').replace('\n','').split('|||')
         trainList.append(comms[1])
+    print('fininsh load train and vectors')
+    openedFile.close()
     return trainList
 
 def load_test_and_vectors(index):
     testList = []
+    
     trainList = load_train_and_vectors()
     openedFile = open('data/train.txt', 'r')
     
@@ -152,7 +156,7 @@ def load_test_and_vectors(index):
     
     #选一个来做预测, 制造虚假回答
     finalList = []
-    
+    print('make a predicton') 
     for id in testList:
         
         if id[1].rstrip('w').strip().lower() == index.strip().lower():
@@ -161,11 +165,12 @@ def load_test_and_vectors(index):
     
     #choice = rand_qa(test_List)
     #finalList = [choice]
-    
-    for num in range(99):
+    print('get the testList') 	
+    for num in range(15):
         finalList.append(['0',finalList[0][1],rand_qa(trainList)])
     
     vectors = load_vectors()
+    print('get the load_vectors finish')
     return finalList, vectors
 
 

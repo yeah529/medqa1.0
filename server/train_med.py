@@ -67,12 +67,14 @@ class QA_MED(object):
         self.vi = Check()
         #获取数据库执行
         self.dbs = qaSQL()
-        
+        self.sess = None
+
     def dev_step(self,test_data,sess):
         scoreList = list()
         i = 0
             
         while True:
+
             x_test_1, x_test_2, x_test_3 = insurance_qa_data_helpers.load_data_val_6(test_data, self.vocab, i, self.config.batch_size)
             feed_dict = {
             self.cnn.q: x_test_1,
@@ -80,7 +82,8 @@ class QA_MED(object):
             self.cnn.aminus: x_test_3,
             self.cnn.keep_prob: 1.0
             }
-            batch_scores = sess.run([self.cnn.q_ap_cosine], feed_dict)
+            
+            batch_scores = self.sess.run([self.cnn.q_ap_cosine], feed_dict)
             for score in batch_scores[0]:
                 scoreList.append(score)
             i += self.config.batch_size
@@ -120,7 +123,7 @@ class QA_MED(object):
     
     
     ###处理模型类函数
-    def get_similar_qa(self, sess, key_option, q_file, user_name,openid):
+    def get_similar_qa(self, key_option, q_file, user_name,openid):
         #根据用户输入科目，获取相应问题
         #reply_text = '您是否要问:' + '\n'
         
@@ -164,11 +167,11 @@ class QA_MED(object):
         #for ix,txt in enumerate(self.top_five):
             #reply_text += str(ix+1) + ': ' + str(txt.encode('utf8')) + '\n'
     
-        return self.train_similarity(sess,top_answer,key_option,q_file,openid)
+        return self.train_similarity(top_answer,key_option,q_file,openid)
         
         
         
-    def train_similarity(self,sess,user_question,key_option,origin_question,openid):
+    def train_similarity(self,user_question,key_option,origin_question,openid):
         #key_option = raw_input("请选择病症科室：")
         #q_file = raw_input("请输入您要的问题：").replace('\n','').lower()
         #print('您是否要问：')
@@ -176,17 +179,16 @@ class QA_MED(object):
         #user_question = self.top_five[int(option)]
         #print('您的问题是： '+str(user_question.encode('utf8')))
         print(user_question)
-        test_data,_ = insurance_qa_data_helpers.load_test_and_vectors(user_question)
-            
-        scoreList = self.dev_step(test_data,sess)
-                    
+        test_data,_ = insurance_qa_data_helpers.load_test_and_vectors(user_question)    
+        print('get test_data')
+        scoreList = self.dev_step(test_data,self.sess)
+        print('get scoreList')            
         max_num = float('-inf')
-        for idx, p in enumerate(test_data):
-                    
+        for idx, p in enumerate(test_data):        
             if scoreList[idx] > max_num:
                 ans = p[2]
                 max_num = scoreList[idx]
-                
+           
         self.dbs.db_add_question(openid,key_option+1,origin_question,user_question,ans)
         
         return '健康小医生建议：\n'+ans.encode('utf8').rstrip('w')
@@ -202,7 +204,7 @@ class QA_MED(object):
         
         #恢复之前模型
         saver.restore(sess, tf.train.latest_checkpoint('server/models/'))
-        return sess
+        self.sess = sess
         
         
         
@@ -234,7 +236,7 @@ class QA_MED(object):
         
         gid = de_data['openGId']
         share_type = int(share_type)
-        print(share_type)
+        
         
         table = 'med_group'
         col_name = 'open_gid'
@@ -243,6 +245,7 @@ class QA_MED(object):
         
         
     
+
 
 
 

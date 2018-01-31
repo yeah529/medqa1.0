@@ -16,7 +16,7 @@ class qaSQL(object):
         
         
     def db_connect(self):    
-        return MySQLdb.connect(self.address, self.user, self.pwd, self.db)
+        return MySQLdb.connect(self.address, self.user, self.pwd, self.db,charset='utf8')
         
     def db_add_user(self,q_open_id,q_nickname,q_gender,q_city):
         conn = self.db_connect()
