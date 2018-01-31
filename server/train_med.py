@@ -1,6 +1,7 @@
 # -*- encoding:utf-8 -*-
 from server.qacnn import QACNN
 from server.InputCheck import Check
+from server.medSQL import qaSQL
 import tensorflow as tf
 import numpy as np
 import re
@@ -11,7 +12,7 @@ import operator
 from server import insurance_qa_data_helpers
 from gensim import corpora, models, similarities
 import jieba
-
+from server.WXBizDataCrypt import WXBizDataCrypt
 
 # Config函数
 class Config(object):
@@ -62,7 +63,10 @@ class QA_MED(object):
         self.key_option = None
         self.top_five = None
         self.cnn = None
+        #获取输入校验
         self.vi = Check()
+        #获取数据库执行
+        self.dbs = qaSQL()
         
     def dev_step(self,test_data,sess):
         scoreList = list()
@@ -85,7 +89,7 @@ class QA_MED(object):
                     
         return scoreList
             
-     
+     ###返回消息类函数
      
     def welcome_msg(self,user_name):
         #第一条打招呼信息
@@ -113,7 +117,10 @@ class QA_MED(object):
     
 
     
-    def get_similar_qa(self, sess, key_option, q_file, user_name):
+    
+    
+    ###处理模型类函数
+    def get_similar_qa(self, sess, key_option, q_file, user_name,openid):
         #根据用户输入科目，获取相应问题
         #reply_text = '您是否要问:' + '\n'
         
@@ -157,11 +164,11 @@ class QA_MED(object):
         #for ix,txt in enumerate(self.top_five):
             #reply_text += str(ix+1) + ': ' + str(txt.encode('utf8')) + '\n'
     
-        return self.train_similarity(sess,top_answer)
+        return self.train_similarity(sess,top_answer,key_option,q_file,openid)
         
         
         
-    def train_similarity(self,sess,user_question):
+    def train_similarity(self,sess,user_question,key_option,origin_question,openid):
         #key_option = raw_input("请选择病症科室：")
         #q_file = raw_input("请输入您要的问题：").replace('\n','').lower()
         #print('您是否要问：')
@@ -179,7 +186,9 @@ class QA_MED(object):
             if scoreList[idx] > max_num:
                 ans = p[2]
                 max_num = scoreList[idx]
-            
+                
+        self.dbs.db_add_question(openid,key_option+1,origin_question,user_question,ans)
+        
         return '健康小医生建议：\n'+ans.encode('utf8').rstrip('w')
         #print max_num
 
@@ -196,7 +205,44 @@ class QA_MED(object):
         return sess
         
         
-#print 'Loading Data Done!'
+        
+        
+        
+        
+        
+
+        
+    ###数据库执行类函数
+    
+    def check_if_exist(self,table,col_name,val):
+        #return True if existed before
+        return self.dbs.if_check(table,col_name,val)
+    
+    def write_user_info(self,q_open_id,q_nickname,q_gender,q_city):
+        
+        table = 'med_user'
+        col_name = 'open_id'
+        if self.check_if_exist(table,col_name,q_open_id):
+            self.dbs.db_add_user(q_open_id,q_nickname,q_gender,q_city)
+    
+
+    def get_send_group(self,openid,appid,appsecret,session_key,en_data,iv,share_type):
+        #return True if existed before
+        pc = WXBizDataCrypt(appid, session_key)
+
+        de_data = pc.decrypt(en_data, iv)
+        
+        gid = de_data['openGId']
+        share_type = int(share_type)
+        print(share_type)
+        
+        table = 'med_group'
+        col_name = 'open_gid'
+        if self.check_if_exist(table,col_name,gid):
+            self.dbs.db_add_share(openid,gid,share_type)
+        
+        
+    
 
 
 
